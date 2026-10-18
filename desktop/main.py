@@ -81,7 +81,8 @@ def _configure_environment() -> Path:
     os.environ["QUEUE_BACKEND"] = "local"
     os.environ["ENVIRONMENT"] = "desktop"  # != "production", então /auth/dev-bootstrap continua liberado
     os.environ["JWT_SECRET"] = _get_or_create_jwt_secret(app_dir)
-    os.environ["CORS_ORIGINS"] = '["http://127.0.0.1", "http://localhost"]'
+    os.environ["CORS_ORIGINS"] = '["http://127.0.0.1", "http://localhost", "http://127.0.0.1:8756", "https://securescan.pages.dev"]'
+
     os.environ.setdefault("ACCESS_TOKEN_EXPIRE_MINUTES", str(60 * 24 * 7))  # sessão de 7 dias, uso pessoal
 
     return app_dir

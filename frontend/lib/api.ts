@@ -1,8 +1,19 @@
-// "" (string vazia) é um valor válido e proposital no build desktop — significa
-// "mesma origem" (API e frontend servidos pela mesma porta). Só cai no
-// localhost:8000 quando a variável nem foi definida (undefined), como no
-// modo Docker/dev.
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+function getApiUrl(): string {
+  if (typeof window !== "undefined") {
+    // No modo desktop (porta 8756) a API e o frontend rodam na mesma origem (127.0.0.1:8756)
+    if (window.location.port === "8756") {
+      return "";
+    }
+    // Se estiver rodando no Cloudflare Pages e o backend local do desktop estiver aberto na máquina
+    if (window.location.hostname.endsWith(".pages.dev")) {
+      return "http://127.0.0.1:8756";
+    }
+  }
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  return "http://localhost:8000";
+}
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -10,7 +21,7 @@ function getToken(): string | null {
 }
 
 async function refreshSession(): Promise<void> {
-  const res = await fetch(`${API_URL}/api/v1/auth/dev-bootstrap`, { method: "POST" });
+  const res = await fetch(`${getApiUrl()}/api/v1/auth/dev-bootstrap`, { method: "POST" });
   if (!res.ok) throw new Error("Não foi possível renovar a sessão.");
   const data = await res.json();
   localStorage.setItem("securescan_access_token", data.access_token);
@@ -19,7 +30,7 @@ async function refreshSession(): Promise<void> {
 async function request<T>(path: string, options: RequestInit = {}, _isRetry = false): Promise<T> {
   const token = getToken();
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${getApiUrl()}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -58,7 +69,7 @@ export async function login(email: string, password: string) {
   form.set("username", email);
   form.set("password", password);
 
-  const res = await fetch(`${API_URL}/api/v1/auth/login`, {
+  const res = await fetch(`${getApiUrl()}/api/v1/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: form.toString(),
@@ -74,13 +85,14 @@ export async function login(email: string, password: string) {
 export async function registerUser(
   email: string, password: string, fullName: string, organizationName: string,
 ): Promise<void> {
-  const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+  const res = await fetch(`${getApiUrl()}/api/v1/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email, password, full_name: fullName, organization_name: organizationName,
     }),
   });
+
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -310,7 +322,7 @@ export function inviteMember(organizationId: string, email: string, role: string
 
 export async function removeMember(organizationId: string, membershipId: string): Promise<void> {
   const token = getToken();
-  const res = await fetch(`${API_URL}/api/v1/organizations/${organizationId}/members/${membershipId}`, {
+  const res = await fetch(`${getApiUrl()}/api/v1/organizations/${organizationId}/members/${membershipId}`, {
     method: "DELETE",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
@@ -366,7 +378,7 @@ export async function downloadExecutiveReport(organizationId: string, projectId:
 
 async function downloadFile(path: string, filename: string): Promise<void> {
   const token = getToken();
-  const res = await fetch(`${API_URL}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  const res = await fetch(`${getApiUrl()}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
   if (!res.ok) throw new Error("Não foi possível gerar o arquivo.");
 
   const blob = await res.blob();
@@ -386,11 +398,29 @@ export interface UpdateCheckResponse {
   download_url: string;
 }
 
-export function checkSystemUpdate() {
-  return api.get<UpdateCheckResponse>("/api/v1/system/update-check");
+export async function checkSystemUpdate(): Promise<UpdateCheckResponse> {
+  try {
+    return await api.get<UpdateCheckResponse>("/api/v1/system/update-check");
+  } catch {
+    // Fallback direto para a API pública do GitHub caso esteja visualizando apenas o frontend estático
+    const ghRes = await fetch("https://api.github.com/repos/cleitonlovable-png/securescan/releases/latest");
+    if (!ghRes.ok) throw new Error("Sem conexão com o servidor de atualização");
+    const data = await ghRes.json();
+    const latest = (data.tag_name || "1.1.0").replace(/^[vV]/, "");
+    return {
+      current_version: "1.1.0",
+      latest_version: latest,
+      update_available: false,
+      notes: data.body || "",
+      download_url:
+        data.assets?.[0]?.browser_download_url ||
+        "https://github.com/cleitonlovable-png/securescan/releases/latest/download/SecureScan_Setup.exe",
+    };
+  }
 }
 
 export function applySystemUpdate() {
   return api.post<{ status: string; message: string }>("/api/v1/system/update-apply");
 }
+
 
