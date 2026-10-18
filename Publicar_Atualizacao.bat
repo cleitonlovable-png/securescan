@@ -54,6 +54,7 @@ pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
     --collect-all slowapi ^
     --collect-all uvicorn ^
     --collect-all reportlab ^
+    --collect-all zapv2 ^
     --collect-submodules app ^
     --collect-submodules scanner_engine ^
     --hidden-import=app.main ^
@@ -62,6 +63,7 @@ pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
     --hidden-import=multipart ^
     --hidden-import=python_multipart ^
     main.py
+
 
 REM 4. Gera o instalador SecureScan_Setup.exe com Inno Setup
 echo.

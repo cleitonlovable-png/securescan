@@ -14,9 +14,11 @@ slowapi>=0.1.9
 python-multipart>=0.0.9
 reportlab>=4.0.0
 requests>=2.31.0
+python-owasp-zap-v2.4>=0.0.21
 
 # Janela nativa
 pywebview>=5.0
 
 # Empacotamento em .exe (usado pelo build.bat)
 pyinstaller>=6.10.0
+

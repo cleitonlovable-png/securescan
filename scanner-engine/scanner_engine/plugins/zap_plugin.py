@@ -46,7 +46,13 @@ class ZapActiveScanPlugin(ScannerPlugin):
                 plugin_name=self.name,
             )]
 
-        zap_proxy = context.extra_config.get("zap_proxy", "http://host.docker.internal:8080")
+        import os
+        default_proxy = (
+            "http://127.0.0.1:8080"
+            if os.environ.get("ENVIRONMENT") == "desktop" or os.environ.get("QUEUE_BACKEND") == "local"
+            else "http://host.docker.internal:8080"
+        )
+        zap_proxy = context.extra_config.get("zap_proxy", default_proxy)
 
         try:
             client = ZapClient(api_key=zap_api_key, zap_proxy=zap_proxy)
@@ -61,12 +67,13 @@ class ZapActiveScanPlugin(ScannerPlugin):
         except Exception as e:
             return [Finding(
                 title="Não foi possível conectar ao OWASP ZAP",
-                description=f"Verifique se o ZAP está rodando em modo daemon e acessível a partir "
-                             f"do container do worker ({zap_proxy}). Erro: {str(e)[:200]}",
+                description=f"Verifique se o OWASP ZAP está aberto na sua máquina na porta 8080 "
+                             f"({zap_proxy}) e se a chave de API está correta. Erro: {str(e)[:200]}",
                 category="web",
                 severity=Severity.INFO,
                 plugin_name=self.name,
             )]
+
 
         findings = []
         for alert in raw_alerts:
