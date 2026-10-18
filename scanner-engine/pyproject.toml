@@ -1,0 +1,16 @@
+[project]
+name = "scanner-engine"
+version = "1.0.0"
+description = "SecureScan scanner plugin engine"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scanner_engine*"]

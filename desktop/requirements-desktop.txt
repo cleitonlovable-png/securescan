@@ -1,0 +1,22 @@
+# Mesmas dependências do backend, MENOS redis/rq (a fila local não precisa delas)
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+sqlalchemy>=2.0.30
+alembic>=1.13.0
+pydantic>=2.8.0
+pydantic[email]>=2.8.0
+pydantic-settings>=2.4.0
+passlib[bcrypt]>=1.7.4
+bcrypt==4.0.1
+pyjwt>=2.9.0
+dnspython>=2.6.0
+slowapi>=0.1.9
+python-multipart>=0.0.9
+reportlab>=4.0.0
+requests>=2.31.0
+
+# Janela nativa
+pywebview>=5.0
+
+# Empacotamento em .exe (usado pelo build.bat)
+pyinstaller>=6.10.0

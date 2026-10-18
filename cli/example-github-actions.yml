@@ -1,0 +1,30 @@
+name: SecureScan
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CLI dependencies
+        run: pip install -r cli/requirements.txt
+
+      - name: Run SecureScan
+        run: |
+          python cli/securescan_cli.py \
+            --api-url ${{ secrets.SECURESCAN_URL }} \
+            --email ${{ secrets.SECURESCAN_EMAIL }} \
+            --password ${{ secrets.SECURESCAN_PASSWORD }} \
+            --org-id ${{ secrets.SECURESCAN_ORG_ID }} \
+            --url https://staging.seuapp.com \
+            --scan-type FULL_SCAN \
+            --fail-on critical

@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: securescan
+      POSTGRES_PASSWORD: securescan
+      POSTGRES_DB: securescan
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U securescan"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://securescan:securescan@postgres:5432/securescan
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../backend:/app
+      - ../scanner-engine:/scanner-engine
+
+  worker:
+    build:
+      context: ..
+      dockerfile: workers/Dockerfile
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://securescan:securescan@postgres:5432/securescan
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../workers:/app
+      - ../scanner-engine:/scanner-engine
+      - ../backend:/backend
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  postgres_data:

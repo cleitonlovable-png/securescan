@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: scanner-engine
+Version: 1.0.0
+Summary: SecureScan scanner plugin engine
+Requires-Python: >=3.11
+Requires-Dist: requests>=2.31.0

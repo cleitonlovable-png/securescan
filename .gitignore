@@ -1,0 +1,12 @@
+﻿node_modules/
+.next/
+out/
+.venv/
+__pycache__/
+*.pyc
+desktop/build/
+desktop/dist/
+desktop/frontend_static/
+backend/.env
+*.db
+*.log
