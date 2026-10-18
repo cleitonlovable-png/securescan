@@ -72,6 +72,7 @@ echo [3/3] Empacotando em SecureScan.exe (isso demora alguns minutos)...
 pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
     --paths "%ROOT_DIR%\backend" ^
     --paths "%ROOT_DIR%\scanner-engine" ^
+    --add-data "%ROOT_DIR%\VERSION.json;." ^
     --add-data "%ROOT_DIR%\backend;backend" ^
     --add-data "%ROOT_DIR%\scanner-engine\scanner_engine;scanner_engine" ^
     --add-data "frontend_static;desktop\frontend_static" ^
@@ -88,10 +89,18 @@ pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
     --hidden-import=python_multipart ^
     main.py
 
+if exist "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" (
+    echo.
+    echo [4/4] Gerando o instalador SecureScan_Setup.exe ...
+    "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" installer.iss
+)
+
 echo.
 echo ===================================================
-echo   Pronto! O executavel esta em:
-echo   %DESKTOP_DIR%\dist\SecureScan\SecureScan.exe
+echo   Pronto!
+echo   Executavel: %DESKTOP_DIR%\dist\SecureScan\SecureScan.exe
+echo   Instalador: %DESKTOP_DIR%\installer\SecureScan_Setup.exe
 echo ===================================================
 pause
+
 

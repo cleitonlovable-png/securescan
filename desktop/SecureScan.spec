@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_submodules
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('G:/Scanner sass/escaner.exe/backend', 'backend'), ('G:/Scanner sass/escaner.exe/scanner-engine/scanner_engine', 'scanner_engine'), ('G:/Scanner sass/escaner.exe/desktop/frontend_static', 'desktop/frontend_static')]
+datas = [('G:/Scanner sass/escaner.exe/VERSION.json', '.'), ('G:/Scanner sass/escaner.exe/backend', 'backend'), ('G:/Scanner sass/escaner.exe/scanner-engine/scanner_engine', 'scanner_engine'), ('G:/Scanner sass/escaner.exe/desktop/frontend_static', 'desktop/frontend_static')]
 binaries = []
 hiddenimports = ['app.main', 'bcrypt', 'email_validator', 'multipart', 'python_multipart']
 hiddenimports += collect_submodules('app')

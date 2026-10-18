@@ -377,3 +377,20 @@ async function downloadFile(path: string, filename: string): Promise<void> {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export interface UpdateCheckResponse {
+  current_version: string;
+  latest_version: string;
+  update_available: boolean;
+  notes: string;
+  download_url: string;
+}
+
+export function checkSystemUpdate() {
+  return api.get<UpdateCheckResponse>("/api/v1/system/update-check");
+}
+
+export function applySystemUpdate() {
+  return api.post<{ status: string; message: string }>("/api/v1/system/update-apply");
+}
+

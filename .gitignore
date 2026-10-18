@@ -10,3 +10,5 @@ desktop/frontend_static/
 backend/.env
 *.db
 *.log
+
+desktop/installer/
