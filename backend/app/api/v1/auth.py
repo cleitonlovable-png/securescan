@@ -29,8 +29,13 @@ def dev_bootstrap(db: Session = Depends(get_db)) -> TokenPair:
     Bloqueado em produção — nunca deve existir um jeito de logar sem senha
     fora de ambiente de desenvolvimento local (ver docs/SECURITY_MODEL.md).
     """
+    import os
+
     if settings.environment == "production":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Não encontrado.")
+
+    env_webhook_secret = os.environ.get("SECURESCAN_WEBHOOK_SECRET")
+    default_webhook_url = "http://127.0.0.1:4567/webhooks/securescan"
 
     user = db.query(User).filter_by(email=DEV_USER_EMAIL).first()
     if user is None:
@@ -42,18 +47,38 @@ def dev_bootstrap(db: Session = Depends(get_db)) -> TokenPair:
         db.add(user)
         db.flush()
 
-        organization = Organization(name=DEV_ORG_NAME)
+        organization = Organization(
+            name=DEV_ORG_NAME,
+            webhook_url=default_webhook_url if env_webhook_secret else None,
+            webhook_secret=env_webhook_secret,
+        )
         db.add(organization)
         db.flush()
 
         db.add(OrganizationMember(organization_id=organization.id, user_id=user.id, role=OrgRole.OWNER))
         db.commit()
         db.refresh(user)
+    else:
+        # Se a organização padrão ainda estiver sem webhook configurado e a
+        # variável SECURESCAN_WEBHOOK_SECRET existir no Windows (AI Dev Studio),
+        # preenche automaticamente para conectar os dois apps sem configuração manual.
+        if env_webhook_secret:
+            org = (
+                db.query(Organization)
+                .join(OrganizationMember, OrganizationMember.organization_id == Organization.id)
+                .filter(OrganizationMember.user_id == user.id)
+                .first()
+            )
+            if org is not None and not org.webhook_url:
+                org.webhook_url = default_webhook_url
+                org.webhook_secret = env_webhook_secret
+                db.commit()
 
     return TokenPair(
         access_token=create_access_token(str(user.id), expires_minutes=60 * 24),  # 24h — modo local, uso pessoal
         refresh_token=create_refresh_token(str(user.id)),
     )
+
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "release_date": "2026-10-18",
-  "notes": "Correção definitiva da conexão da API no modo Desktop (porta 8756) e no verificador de atualização."
+  "notes": "Integração automática do Webhook com o AI Dev Studio (porta 4567 + SECURESCAN_WEBHOOK_SECRET)."
 }
