@@ -43,7 +43,7 @@ echo.
 echo [2/5] Gerando SecureScan.exe (PyInstaller)...
 cd /d "%DESKTOP_DIR%"
 call "%ROOT_DIR%\.venv\Scripts\activate.bat"
-pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
+pyinstaller --noconfirm --onedir --windowed --name SecureScan --icon=icon.ico ^
     --paths "%ROOT_DIR%\backend" ^
     --paths "%ROOT_DIR%\scanner-engine" ^
     --add-data "%ROOT_DIR%\VERSION.json;." ^
@@ -65,9 +65,9 @@ pyinstaller --noconfirm --onedir --windowed --name SecureScan ^
     main.py
 
 
-REM 4. Gera o instalador SecureScan_Setup.exe com Inno Setup
+REM 4. Gera o instalador CSC_Scan_Setup.exe com Inno Setup
 echo.
-echo [3/5] Compilando instalador SecureScan_Setup.exe (v%NEW_VER%)...
+echo [3/5] Compilando instalador CSC_Scan_Setup.exe (v%NEW_VER%)...
 "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" /DMyAppVersion="%NEW_VER%" installer.iss
 
 REM 5. Commit, Push, GitHub Release (com o .exe anexado) e Cloudflare Pages
@@ -77,7 +77,8 @@ cd /d "%ROOT_DIR%"
 git add .
 git commit -m "release: v%NEW_VER% - %NOTES%"
 git push origin master
-gh release create "v%NEW_VER%" "%DESKTOP_DIR%\installer\SecureScan_Setup.exe" --title "SecureScan v%NEW_VER%" --notes "%NOTES%"
+gh release create "v%NEW_VER%" "%DESKTOP_DIR%\installer\CSC_Scan_Setup.exe" --title "CSC Scan v%NEW_VER%" --notes "%NOTES%"
+
 
 echo.
 echo [5/5] Atualizando dominio Cloudflare Pages (securescan.pages.dev)...

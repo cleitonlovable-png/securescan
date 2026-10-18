@@ -35,10 +35,11 @@ export default function Sidebar() {
       <div className="flex items-center gap-2 px-5 py-5">
         <ShieldCheck className="text-brand-red" size={28} strokeWidth={2.2} />
         <div>
-          <div className="font-bold text-white leading-tight">SecureScan</div>
+          <div className="font-bold text-white leading-tight">CSC Scan</div>
           <div className="text-[11px] text-gray-500 leading-tight">Sua aplicação mais segura</div>
         </div>
       </div>
+
 
       <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
         {NAV_ITEMS.map(({ label, href, icon: Icon }) => {

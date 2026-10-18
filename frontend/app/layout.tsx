@@ -3,9 +3,10 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
 export const metadata: Metadata = {
-  title: "SecureScan — Sua aplicação mais segura",
+  title: "CSC Scan — Sua aplicação mais segura",
   description: "Plataforma de análise de segurança de aplicações web, SaaS e infraestrutura.",
 };
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

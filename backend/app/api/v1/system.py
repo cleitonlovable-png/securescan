@@ -64,7 +64,8 @@ def check_for_updates() -> dict:
 
     remote_version = current_version
     notes = ""
-    download_url = f"https://github.com/{GITHUB_REPO}/releases/latest/download/SecureScan_Setup.exe"
+    download_url = f"https://github.com/{GITHUB_REPO}/releases/latest/download/CSC_Scan_Setup.exe"
+
 
     # 1. Tenta consultar GitHub Releases API
     try:

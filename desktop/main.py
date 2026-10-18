@@ -138,13 +138,14 @@ def main() -> None:
 
     import webview
     webview.create_window(
-        "SecureScan",
+        "CSC Scan",
         f"http://127.0.0.1:{API_PORT}/",
         width=1280,
         height=800,
         min_size=(960, 600),
     )
     webview.start()
+
 
 
 if __name__ == "__main__":
